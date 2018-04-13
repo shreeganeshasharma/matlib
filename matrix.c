@@ -6,6 +6,19 @@ typedef struct Matrix{
 	float num[5][5];
 }matrix;
 
+typedef struct Vector{
+	int flag;	//0 - doesn't matter, 1 - row, 2 - column
+	int dim;
+	int num[5];
+}vector;
+
+typedef struct MetaMatrix{
+	matrix mat;
+	int isSquare;
+	int determinant;
+	int rank;
+}meta;
+
 matrix readMatrix();
 void printMatrix(matrix);
 int* countLeadingZeros(matrix);
@@ -17,6 +30,15 @@ matrix addMatrix(matrix, matrix);
 matrix subMatrix(matrix, matrix);
 matrix mulMatrix(matrix, matrix);
 matrix zeroMatrix(int, int);
+matrix identityMatrix(int);
+int isSquareMatrix(matrix);
+int rankOfMatrix(matrix);
+int determinant(matrix);
+matrix makeLeadingEntryOne(matrix, int*);
+int isVector(matrix);
+int isRowVector(matrix);
+int isColumnsVector(matrix);
+int isZeroMatrix(matrix);
 
 int main(){
 	matrix originalMatrix;
@@ -27,9 +49,29 @@ int main(){
 	transformedMatrix = originalMatrix;
 	//printMatrix(transformedMatrix);
 
+	/*
 	int* leadingZeros;
 	leadingZeros = countLeadingZeros(transformedMatrix);
+	*/
+
+	printf("%d", rankOfMatrix(transformedMatrix));
 	
+	/*
+	transformedMatrix = identityMatrix(4);
+	printMatrix(transformedMatrix);
+
+	if(isSquareMatrix(transformedMatrix)){
+		printf("Square\n");
+	}else{
+		printf("Not Square\n");
+	}
+	/*
+
+	/*
+	transformedMatrix = identityMatrix(4);
+	printMatrix(transformedMatrix);
+	*/
+
 	/*
 	transformedMatrix = transpose(originalMatrix);
 	printMatrix(transformedMatrix);
@@ -78,31 +120,6 @@ void printMatrix(matrix mat){
 		}
 		printf("\n");
 	}
-}
-
-int* countLeadingZeros(matrix mat){
-	int i, j;
-	static int zeros[5] = {0,0,0,0,0};
-	for(i = 0;i < mat.rows;i++){
-		j = 0;
-		while(mat.num[i][j] == 0){
-			zeros[i]++;
-			j++;
-		}
-	}
-	return zeros;
-}
-
-matrix sortByLeadingZeros(matrix mat, int* zeros){
-	int i, j;
-	for(i = 0;i < mat.rows - 1;i++){
-		for(j = (i + 1);j < mat.rows;j++){
-			if(*(zeros + i) > *(zeros + j)){
-				mat = swapRows(mat, i, j);
-			}
-		}
-	}
-	return mat;
 }
 
 matrix swapRows(matrix mat, int m, int n){
@@ -210,4 +227,119 @@ matrix zeroMatrix(int m, int n){
 		}
 	}
 	return mat;
+}
+
+matrix identityMatrix(int m){
+	matrix mat;
+	mat = zeroMatrix(m, m);
+	int i;
+	for(i = 0;i < m;i++){
+		mat.num[i][i] = 1;
+	}
+	return mat;
+}
+
+int isVector(matrix mat){
+	if((mat.rows == 1) || (mat.columns == 1)){
+		return 1;
+	}else{
+		return 0;
+	}
+}
+
+int isRowVector(matrix mat){
+	if(mat.rows == 1){
+		return 1;
+	}else{
+		return 0;
+	}
+}
+
+int isColumnVector(matrix mat){
+	if(mat.columns == 1){
+		return 1;
+	}else{
+		return 0;
+	}
+}
+
+int isSquareMatrix(matrix mat){
+	if(mat.rows == mat.columns){
+		return 1;
+	}else{
+		return 0;
+	}
+}
+
+int isZeroMatrix(matrix mat){
+
+}
+
+//Not yet working
+int* countLeadingZeros(matrix mat){
+	int i, j;
+	static int zeros[5] = {0,0,0,0,0};
+	for(i = 0;i < mat.rows;i++){
+		j = 0;
+		while(mat.num[i][j] == 0){
+			zeros[i]++;
+			j++;
+		}
+	}
+	return zeros;
+}
+
+matrix sortByLeadingZeros(matrix mat, int* zeros){
+	int i, j;
+	for(i = 0;i < mat.rows - 1;i++){
+		for(j = (i + 1);j < mat.rows;j++){
+			if(*(zeros + i) > *(zeros + j)){
+				mat = swapRows(mat, i, j);
+			}
+		}
+	}
+	return mat;
+}
+
+matrix makeLeadingEntryOne(matrix mat, int* leadingZeros){
+	int i, j;
+	int* pivot;
+	for(i = 0;i < mat.rows;i++){
+		//*(pivot + i) = mat.num[i][*(leadingZeros + i)];
+		//int j;
+		j = *(leadingZeros + i);
+		*(pivot + i) = mat.num[i][j];
+	}
+	for(i = 0;i < mat.rows;i++){
+		for(j = *(leadingZeros + i);j < mat.columns;j++){
+			mat.num[i][j] /=  *(pivot + i);
+		}
+	}
+}
+
+
+int rankOfMatrix(matrix mat){
+	int i;
+	int rank = 0;
+	//for(i = 0;i < mat.rows;i++){
+		printf("1\n");
+		printMatrix(mat);
+		int* leadingZeros = countLeadingZeros(mat);
+		for(rank = 0;rank < mat.rows;rank++){
+			printf("%d\n", *(leadingZeros + i));
+		}
+		printf("2\n");
+		printMatrix(mat);
+		//mat = makeLeadingEntryOne(mat, leadingZeros);
+		printf("3\n");
+		printMatrix(mat);
+		//mat = sortByLeadingZeros(mat, leadingZeros);
+		printf("4\n");
+		printMatrix(mat);
+	//}
+	return rank;
+}
+
+int determinant(matrix mat){
+
 }
