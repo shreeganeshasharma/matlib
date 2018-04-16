@@ -1,4 +1,5 @@
 #include<stdio.h>
+#include<math.h>
 
 typedef struct Matrix{
 	int rows;
@@ -39,6 +40,8 @@ int isVector(matrix);
 int isRowVector(matrix);
 int isColumnsVector(matrix);
 int isZeroMatrix(matrix);
+float traceOfMatrix(matrix);
+float normOfMatrix(matrix);
 
 int main(){
 	matrix originalMatrix;
@@ -53,8 +56,9 @@ int main(){
 	int* leadingZeros;
 	leadingZeros = countLeadingZeros(transformedMatrix);
 	*/
-
-	printf("%d", rankOfMatrix(transformedMatrix));
+	printf("%f\n", traceOfMatrix(transformedMatrix));
+	printf("%f\n", normOfMatrix(transformedMatrix));
+	//printf("%d", rankOfMatrix(transformedMatrix));
 	
 	/*
 	transformedMatrix = identityMatrix(4);
@@ -340,6 +344,32 @@ int rankOfMatrix(matrix mat){
 	return rank;
 }
 
+float traceOfMatrix(matrix mat){
+	if(isSquareMatrix(mat)){
+		int i, j;
+		float sum = 0;
+		for(i = 0;i < mat.rows;i++){
+			sum += mat.num[i][i];
+		}
+		return sum;
+	}else{
+		printf("Can't find trace for non square matrices\n");
+		//Some exception handling mech
+	}
+}
+
+float normOfMatrix(matrix mat){
+	int i, j;
+	float sum = 0;
+	for(i = 0;i < mat.rows;i++){
+		for(j = 0;j < mat.columns;j++){
+			sum += pow(mat.num[i][j], 2);
+		}
+	}
+	return sqrt(sum);
+}
+
 int determinant(matrix mat){
 
 }
+
