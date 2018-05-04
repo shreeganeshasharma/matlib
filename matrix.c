@@ -22,8 +22,6 @@ typedef struct MetaMatrix{
 
 matrix readMatrix();
 void printMatrix(matrix);
-int* countLeadingZeros(matrix);
-matrix sortByLeadingZeros(matrix, int*);
 matrix swapRows(matrix, int, int);
 matrix swapColumns(matrix, int, int);
 matrix transpose(matrix);
@@ -32,33 +30,48 @@ matrix subMatrix(matrix, matrix);
 matrix mulMatrix(matrix, matrix);
 matrix zeroMatrix(int, int);
 matrix identityMatrix(int);
-int isSquareMatrix(matrix);
-int rankOfMatrix(matrix);
-int determinant(matrix);
-matrix makeLeadingEntryOne(matrix, int*);
 int isVector(matrix);
 int isRowVector(matrix);
-int isColumnsVector(matrix);
+int isColumnVector(matrix);
+int isSquareMatrix(matrix);
 int isZeroMatrix(matrix);
 float traceOfMatrix(matrix);
 float normOfMatrix(matrix);
+matrix removeRowOfMatrix(matrix, int);
+matrix removeColumnOfMatrix(matrix, int);
+matrix partMatrix(matrix, int, int);
+float minor(matrix, int, int);
+int determinant(matrix);
+int* countLeadingZeros(matrix);
+matrix sortByLeadingZeros(matrix, int*);
+int rankOfMatrix(matrix);
+matrix makeLeadingEntryOne(matrix, int*);
+
 
 int main(){
-	matrix originalMatrix;
-	originalMatrix = readMatrix();
-	printMatrix(originalMatrix);
+	//matrix originalMatrix;
+	//originalMatrix = readMatrix();
+	//printMatrix(originalMatrix);
 
 	matrix transformedMatrix;
-	transformedMatrix = originalMatrix;
+	//transformedMatrix = originalMatrix;
+	transformedMatrix = identityMatrix(4);
+	printMatrix(transformedMatrix);
+	//transformedMatrix= removeRowOfMatrix(transformedMatrix, 3);
+	//printMatrix(transformedMatrix);
+	//transformedMatrix= removeColumnOfMatrix(transformedMatrix, 0);
+	//printMatrix(transformedMatrix);
+	//transformedMatrix= partMatrix(transformedMatrix, 1, 2);
 	//printMatrix(transformedMatrix);
 
 	/*
 	int* leadingZeros;
 	leadingZeros = countLeadingZeros(transformedMatrix);
 	*/
-	printf("%f\n", traceOfMatrix(transformedMatrix));
-	printf("%f\n", normOfMatrix(transformedMatrix));
+	//printf("%f\n", traceOfMatrix(transformedMatrix));
+	//printf("%f\n", normOfMatrix(transformedMatrix));
 	//printf("%d", rankOfMatrix(transformedMatrix));
+	//printf("%d", isZeroMatrix(transformedMatrix));
 	
 	/*
 	transformedMatrix = identityMatrix(4);
@@ -98,6 +111,7 @@ int main(){
 	*/
 }
 
+//I/O functions
 matrix readMatrix(){
 	matrix mat;
 	printf("Enter the number of rows : ");
@@ -159,6 +173,7 @@ matrix transpose(matrix mat){
 	return transMatrix;
 }
 
+//Arithmetic operations
 matrix addMatrix(matrix mat1, matrix mat2){
 	if(mat1.rows == mat2.rows && mat1.columns == mat2.columns){
 		printf("Addition possible");
@@ -220,6 +235,7 @@ matrix mulMatrix(matrix mat1, matrix mat2){
 	}
 }
 
+//Special matrices
 matrix zeroMatrix(int m, int n){
 	matrix mat;
 	mat.rows = m;
@@ -243,6 +259,7 @@ matrix identityMatrix(int m){
 	return mat;
 }
 
+//Check speciality
 int isVector(matrix mat){
 	if((mat.rows == 1) || (mat.columns == 1)){
 		return 1;
@@ -276,9 +293,132 @@ int isSquareMatrix(matrix mat){
 }
 
 int isZeroMatrix(matrix mat){
-
+	int flag = 0;
+	int i, j;
+	for(i = 0;i < mat.rows;i++){
+		for(j = 0;j < mat.columns;j++){
+			if(mat.num[i][j] != 0){
+				flag = 1;
+			}
+		}
+	}
+	(flag == 0) ? (flag = 1) : (flag = 0);
+	return flag;
 }
 
+float traceOfMatrix(matrix mat){
+	if(isSquareMatrix(mat)){
+		int i, j;
+		float sum = 0;
+		for(i = 0;i < mat.rows;i++){
+			sum += mat.num[i][i];
+		}
+		return sum;
+	}else{
+		printf("Can't find trace for non square matrices\n");
+		//Some exception handling mech
+	}
+}
+
+float normOfMatrix(matrix mat){
+	int i, j;
+	float sum = 0;
+	for(i = 0;i < mat.rows;i++){
+		for(j = 0;j < mat.columns;j++){
+			sum += pow(mat.num[i][j], 2);
+		}
+	}
+	return sqrt(sum);
+}
+
+//Determinant related functions
+//Check performance differences(theoretical & practical) of below 2 logic
+matrix removeRowOfMatrix(matrix mat, int m){
+	int i, j;
+	matrix transMatrix;
+	transMatrix.rows = mat.rows - 1;
+	transMatrix.columns = mat.columns;
+	for(i = 0;i < transMatrix.rows;i++){
+		if(i < m){
+			for(j = 0;j < transMatrix.columns;j++){
+				transMatrix.num[i][j] = mat.num[i][j];
+			}
+		}else if(i >= m){
+			for(j = 0;j < transMatrix.columns;j++){
+				transMatrix.num[i][j] = mat.num[i + 1][j];
+			}
+		}
+	}
+	return transMatrix;
+}
+
+matrix removeColumnOfMatrix(matrix mat, int m){
+	int i, j;
+	matrix transMatrix;
+	transMatrix.rows = mat.rows;
+	transMatrix.columns = mat.columns - 1;
+	for(i = 0;i < transMatrix.columns;i++){
+		for(j = 0;j < transMatrix.rows;j++){
+			if(i < m){
+				transMatrix.num[j][i] = mat.num[j][i];
+			}else if(i >= m){
+				transMatrix.num[j][i] = mat.num[j][i + 1];
+			}
+		}
+	}
+	return transMatrix;
+}
+
+matrix partMatrix(matrix mat, int m, int n){
+	mat = removeRowOfMatrix(mat, m);
+	mat = removeColumnOfMatrix(mat, n);
+	return mat;
+}
+
+//Not yet working
+/*float minor(matrix mat, int m, int n){
+	matrix transMatrix;
+	float det = 0;
+	transMatrix = mat;
+	if(transMatrix.rows == 1){
+		return transMatrix.num[0][0];	//base case
+	}
+	else if(transMatrix.rows == 2){
+		return ((transMatrix.num[0][0] * transMatrix.num[1][1]) - (transMatrix.num[0][1] * transMatrix.num[1][0]));
+	}else{
+		int p, q, r, s;
+		det = 0;
+      	for(j1=0;j1<n;j1++){
+         	for(i=0;i<n-1;i++)
+        		m[i] = malloc((n-1)*sizeof(double));
+         	for(i=1;i<n;i++){
+            	j2 = 0;
+            	for(j=0;j<n;j++){
+            		if (j == j1)
+                		continue;
+               		m[i-1][j2] = a[i][j];
+               		j2++;
+               	}
+            }
+        det += pow(-1.0,1.0+j1+1.0) * a[0][j1] * Determinant(m,n-1);
+      }
+	}
+}
+
+int determinant(matrix mat){
+	matrix transMatrix;
+	transMatrix = mat;
+	if(isSquareMatrix(transMatrix)){
+		if(transMatrix.rows == 1){
+			return 1;//temporary solution
+		}
+	}else{
+		printf("Non square matrices do not have determinants\n");
+		return 0;
+	}
+}*/
+
+//Rank related functions
 //Not yet working
 int* countLeadingZeros(matrix mat){
 	int i, j;
@@ -321,7 +461,6 @@ matrix makeLeadingEntryOne(matrix mat, int* leadingZeros){
 	}
 }
 
-
 int rankOfMatrix(matrix mat){
 	int i;
 	int rank = 0;
@@ -343,33 +482,3 @@ int rankOfMatrix(matrix mat){
 	//}
 	return rank;
 }
-
-float traceOfMatrix(matrix mat){
-	if(isSquareMatrix(mat)){
-		int i, j;
-		float sum = 0;
-		for(i = 0;i < mat.rows;i++){
-			sum += mat.num[i][i];
-		}
-		return sum;
-	}else{
-		printf("Can't find trace for non square matrices\n");
-		//Some exception handling mech
-	}
-}
-
-float normOfMatrix(matrix mat){
-	int i, j;
-	float sum = 0;
-	for(i = 0;i < mat.rows;i++){
-		for(j = 0;j < mat.columns;j++){
-			sum += pow(mat.num[i][j], 2);
-		}
-	}
-	return sqrt(sum);
-}
-
-int determinant(matrix mat){
-
-}
-
